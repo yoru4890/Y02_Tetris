@@ -8,6 +8,12 @@ using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 
+enum class Layer : int
+{
+	Background = 0,
+	Character = 1
+};
+
 Game::Game() noexcept(false)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -35,6 +41,28 @@ void Game::Initialize(HWND window, int width, int height)
 	CreateWindowSizeDependentResources();
 
 	TextureManager::Instance().Initialize(m_deviceResources.get());
+
+	StageInitialize();
+}
+
+void Game::StageInitialize()
+{
+	
+	auto pKnight = ActorManager::Instance().Create<AnimatedActor>(static_cast<int>(Layer::Character),
+		L"Assets/sprites.png",
+		L"Assets/sprites.json",
+		L"Assets/animation.json"
+	);
+
+	pKnight->SetAnimation(L"Run");
+	pKnight->SetPosition(100.0f + rand() % 300, 100.0f + rand() % 300);
+	
+
+	auto pBack = ActorManager::Instance().Create<Actor>(static_cast<int>(Layer::Background),
+		L"Assets/back.png"
+		);
+	pBack->SetPivot(0.0f, 0.0f);
+	pBack->SetPosition(0.0f, 0.0f);
 }
 
 #pragma region Frame Update

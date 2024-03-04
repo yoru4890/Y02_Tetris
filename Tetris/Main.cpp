@@ -4,10 +4,18 @@ using namespace DirectX;
 
 namespace
 {
+	
+
 	class MyGame final : public Game
 	{
 	public:
 		~MyGame() override {}
+
+	public:
+		void Initialize(HWND window, int width, int height) override
+		{
+			Game::Initialize(window, width, height);
+		}
 
 	protected:
 		void Update(DX::StepTimer const& timer) override
@@ -22,6 +30,8 @@ namespace
 	};
 
 	std::unique_ptr<Game> g_game;
+
+	
 }
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

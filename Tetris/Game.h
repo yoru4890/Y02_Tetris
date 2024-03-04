@@ -27,6 +27,8 @@ public:
 	virtual void OnWindowSizeChanged(int width, int height);
 	virtual void GetDefaultSize(int& width, int& height) const noexcept;
 
+	void StageInitialize();
+
 protected:
 	virtual void Update(DX::StepTimer const& timer);
 	virtual void Render();
