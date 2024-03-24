@@ -8,13 +8,7 @@ using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 
-enum class Layer : int
-{
-	Background = 0,
-	Character = 1
-};
-
-Game::Game() noexcept(false)
+Game::Game() noexcept(false) : m_board(), m_tile(nullptr)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -47,22 +41,22 @@ void Game::Initialize(HWND window, int width, int height)
 
 void Game::StageInitialize()
 {
-	
-	auto pKnight = ActorManager::Instance().Create<AnimatedActor>(static_cast<int>(Layer::Character),
-		L"Assets/sprites.png",
-		L"Assets/sprites.json",
-		L"Assets/animation.json"
+	auto pTile = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile),
+		L"Assets/I.png"
 	);
 
-	pKnight->SetAnimation(L"Run");
-	pKnight->SetPosition(100.0f + rand() % 300, 100.0f + rand() % 300);
-	
+	pTile->SetPosition(100.0f + rand() % 300, 100.0f + rand() % 300);
 
-	auto pBack = ActorManager::Instance().Create<Actor>(static_cast<int>(Layer::Background),
-		L"Assets/back.png"
-		);
+
+	auto pBack = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Background),
+		L"Assets/Board.png"
+	);
 	pBack->SetPivot(0.0f, 0.0f);
 	pBack->SetPosition(0.0f, 0.0f);
+}
+
+void Game::ClearCheck()
+{
 }
 
 #pragma region Frame Update
@@ -176,8 +170,8 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 void Game::GetDefaultSize(int& width, int& height) const noexcept
 {
-	width = 800;
-	height = 600;
+	width = 1280;
+	height = 720;
 }
 #pragma endregion
 
@@ -200,7 +194,7 @@ void Game::CreateWindowSizeDependentResources()
 
 void Game::OnDeviceLost()
 {
-	
+
 	m_spriteBatch.reset();
 	m_commonStates.reset();
 

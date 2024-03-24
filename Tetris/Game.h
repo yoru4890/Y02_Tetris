@@ -2,6 +2,10 @@
 
 class Game : public DX::IDeviceNotify
 {
+private:
+	std::array<int, GameConstants::BOARD_SIZE>	m_board;
+	std::unique_ptr<DX::Actor>					m_tile;
+
 public:
 	Game() noexcept(false);
 	virtual ~Game();
@@ -27,7 +31,8 @@ public:
 	virtual void OnWindowSizeChanged(int width, int height);
 	virtual void GetDefaultSize(int& width, int& height) const noexcept;
 
-	void StageInitialize();
+	void StageInitialize(); // TODO
+	void ClearCheck(); // TODO
 
 protected:
 	virtual void Update(DX::StepTimer const& timer);
@@ -45,7 +50,7 @@ protected:
 	std::unique_ptr<DirectX::Keyboard>		m_keyboard;
 	std::unique_ptr<DirectX::Mouse>			m_mouse;
 
-	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
-	std::unique_ptr<DirectX::CommonStates> m_commonStates;
+	std::unique_ptr<DirectX::SpriteBatch>	m_spriteBatch;
+	std::unique_ptr<DirectX::CommonStates>	m_commonStates;
 };
 

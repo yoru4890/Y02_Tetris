@@ -36,6 +36,7 @@
     <ClCompile Include="Game.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeviceResources.h">
@@ -68,6 +69,8 @@
     <ClInclude Include="Game.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="GameConstants.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

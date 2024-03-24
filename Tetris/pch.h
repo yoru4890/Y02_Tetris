@@ -38,6 +38,7 @@
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 
+#include <array>
 #include <map>
 #include <list>
 #include <algorithm>
@@ -83,6 +84,7 @@
 #include "rapidjson/document.h"
 #pragma warning(pop)
 
+#include "GameConstants.h"
 #include "Utility.h"
 #include "StepTimer.h"
 #include "DeviceResources.h"
