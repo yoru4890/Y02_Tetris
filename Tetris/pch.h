@@ -47,6 +47,8 @@
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
+#include <random>
+#include <chrono>
 
 #include <stdio.h>
 
@@ -93,6 +95,8 @@
 #include "Actor.h"
 #include "AnimatedActor.h"
 #include "ActorManager.h"
+#include "TileBase.h"
+#include "TileI.h"
 #include "Game.h"
 
 namespace DX

@@ -8,7 +8,7 @@ using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game() noexcept(false) : m_board(), m_tile(nullptr)
+Game::Game() noexcept(false) : m_board(), m_tile(nullptr), m_accumulatedTime(), m_keyPressedTime(), m_tiles(), m_background()
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -36,27 +36,72 @@ void Game::Initialize(HWND window, int width, int height)
 
 	TextureManager::Instance().Initialize(m_deviceResources.get());
 
+	InitRandomSeed();
+
 	StageInitialize();
 }
 
 void Game::StageInitialize()
 {
-	auto pTile = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile),
-		L"Assets/I.png"
-	);
-
-	pTile->SetPosition(100.0f + rand() % 300, 100.0f + rand() % 300);
-
-
-	auto pBack = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Background),
+	m_background = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Background),
 		L"Assets/Board.png"
 	);
-	pBack->SetPivot(0.0f, 0.0f);
-	pBack->SetPosition(0.0f, 0.0f);
+	m_background->SetPivot(0.0f, 0.0f);
+	m_background->SetPosition(0.0f, 0.0f);
+
+	for (int i{}, j{ GameConstants::BOARD_COL * (GameConstants::BOARD_ROW - 1) }; i < GameConstants::BOARD_COL; i++, j++)
+	{
+		m_board[i] = m_board[j] = GameConstants::ShapeTile::WALL;
+	}
+
+	for (int i{}, j{ GameConstants::BOARD_COL - 1 }; j < GameConstants::BOARD_SIZE; i += GameConstants::BOARD_COL, j += GameConstants::BOARD_COL)
+	{		
+		m_board[i] = m_board[j] = GameConstants::ShapeTile::WALL;
+	}
+
+	m_tiles[2] = ActorManager::Instance().Create<TileI>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/I.png");
+	//m_tiles[3] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/J.png");
+	//m_tiles[4] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/L.png");
+	//m_tiles[5] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/O.png");
+	//m_tiles[6] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/S.png");
+	//m_tiles[7] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/T.png");
+	//m_tiles[8] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/Z.png");
+
+	int randomNum{ GenerateRandomNumber(2,8) };
+
+	m_tile = m_tiles[2];
+	m_tile->SetPivot(0.0f, 0.0f);
+	m_tile->SetPosition(160.0f, 32.0f);
+	// TODO
+	// 이미지파일들 어떻게 저장시키고 다룰지 고민
+
 }
 
-void Game::ClearCheck()
+void Game::LineClearCheck()
 {
+}
+
+int Game::GenerateRandomNumber(int min, int max)
+{
+	std::uniform_int_distribution<> dist(min, max);
+	return dist(m_randomGenerator);
+}
+
+void Game::InitRandomSeed()
+{
+	unsigned seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
+	m_randomGenerator.seed(seed);
+}
+
+void Game::SpawnTile()
+{
+	m_keyPressedTime = 0.0;
+
+	int randomNum{ GenerateRandomNumber(2,8) };
+
+	m_tile = m_tiles[2];
+	m_tile->SetPivot(0.0f, 0.0f);
+	m_tile->SetPosition(160.0f, 32.0f);
 }
 
 #pragma region Frame Update
@@ -74,10 +119,17 @@ void Game::Tick()
 void Game::Update(DX::StepTimer const& timer)
 {
 	auto kb = m_keyboard->GetState();
+	
 	if (kb.Escape)
 	{
 		ExitGame();
 	}
+
+	if (!(m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime)))
+	{
+		SpawnTile();
+	}
+
 
 	ActorManager::Instance().Update(timer.GetElapsedSeconds());
 
@@ -99,8 +151,11 @@ void Game::Render()
 
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_commonStates->NonPremultiplied());
 
-	ActorManager().Instance().Draw(m_spriteBatch.get());
-
+	
+	m_background->Draw(m_spriteBatch.get());
+	m_tile->Draw(m_spriteBatch.get());
+	//ActorManager().Instance().Draw(m_spriteBatch.get());
+	
 	m_spriteBatch->End();
 
 	m_deviceResources->PIXEndEvent();

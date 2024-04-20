@@ -2,10 +2,6 @@
 
 class Game : public DX::IDeviceNotify
 {
-private:
-	std::array<int, GameConstants::BOARD_SIZE>	m_board;
-	std::unique_ptr<DX::Actor>					m_tile;
-
 public:
 	Game() noexcept(false);
 	virtual ~Game();
@@ -32,7 +28,10 @@ public:
 	virtual void GetDefaultSize(int& width, int& height) const noexcept;
 
 	void StageInitialize(); // TODO
-	void ClearCheck(); // TODO
+	void LineClearCheck(); // TODO
+	int GenerateRandomNumber(int min, int max);
+	void InitRandomSeed();
+	void SpawnTile();
 
 protected:
 	virtual void Update(DX::StepTimer const& timer);
@@ -40,6 +39,16 @@ protected:
 	virtual void Clear();
 	virtual void CreateDeviceDependentResources();
 	virtual void CreateWindowSizeDependentResources();
+
+private:
+	std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>	m_board;
+	std::array<DX::TileBase*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_tiles;
+	DX::TileBase* m_tile;
+	DX::Actor* m_background;
+	std::mt19937								m_randomGenerator;
+	double										m_accumulatedTime;
+	double										m_keyPressedTime;
+	
 
 protected:
 	int m_currentFrame{};

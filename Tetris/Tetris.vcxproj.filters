@@ -4,73 +4,91 @@
     <Filter Include="Common">
       <UniqueIdentifier>{c977db2a-31fd-45f5-bb30-1c7ab7f5f1f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\Actor">
+      <UniqueIdentifier>{775eb56d-64d8-4477-9e67-663e62045aa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Utility">
+      <UniqueIdentifier>{bece912f-f346-472c-b544-51d5ed4f6355}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tile">
+      <UniqueIdentifier>{1e396cd4-d4ca-4ab9-84a7-ae71d4e8730d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="JSONManager.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Actor.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="ActorManager.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimatedActor.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="Actor.cpp">
+      <Filter>Common\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorManager.cpp">
+      <Filter>Common\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedActor.cpp">
+      <Filter>Common\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Common\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Common\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONManager.cpp">
+      <Filter>Common\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>Common\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="TileI.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DeviceResources.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="JSONManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="StepTimer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="ActorManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimatedActor.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Tile.h" />
-    <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="Actor.h">
+      <Filter>Common\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="ActorManager.h">
+      <Filter>Common\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedActor.h">
+      <Filter>Common\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Common\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Common\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.h">
+      <Filter>Common\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONManager.h">
+      <Filter>Common\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Common\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="GameConstants.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="TileBase.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileI.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
