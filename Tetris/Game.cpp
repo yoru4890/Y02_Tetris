@@ -5,10 +5,12 @@ extern void ExitGame() noexcept;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace DX;
+using namespace GameConstants;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game() noexcept(false) : m_board(), m_tile(nullptr), m_accumulatedTime(), m_keyPressedTime(), m_tiles(), m_background()
+Game::Game() noexcept(false) : 
+	m_board(), m_tile(nullptr), m_accumulatedTime(), m_keyPressedTime(), m_tiles(), m_background(), m_isPressedSpaceBar(false)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -67,11 +69,7 @@ void Game::StageInitialize()
 	//m_tiles[7] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/T.png");
 	//m_tiles[8] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/Z.png");
 
-	int randomNum{ GenerateRandomNumber(2,8) };
-
-	m_tile = m_tiles[2];
-	m_tile->SetPivot(0.0f, 0.0f);
-	m_tile->SetPosition(160.0f, 32.0f);
+	SpawnTile();
 	// TODO
 	// 이미지파일들 어떻게 저장시키고 다룰지 고민
 
@@ -100,8 +98,8 @@ void Game::SpawnTile()
 	int randomNum{ GenerateRandomNumber(2,8) };
 
 	m_tile = m_tiles[2];
-	m_tile->SetPivot(0.0f, 0.0f);
-	m_tile->SetPosition(160.0f, 32.0f);
+	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * 5, m_tile->GetSize().y / 2 + TILE_SIZE);
+	m_tile->SetStuckBySpaceBar(false);
 }
 
 #pragma region Frame Update
@@ -118,6 +116,12 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {
+	if (m_tile->IsStuck(timer))
+	{
+		SpawnTile();
+		return;
+	}
+
 	auto kb = m_keyboard->GetState();
 	
 	if (kb.Escape)
@@ -125,12 +129,22 @@ void Game::Update(DX::StepTimer const& timer)
 		ExitGame();
 	}
 
-	if (!(m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime)))
+	if (kb.Space)
 	{
-		SpawnTile();
+		if (!m_isPressedSpaceBar)
+		{
+			m_tile->SpaceBar();
+			m_isPressedSpaceBar = true;
+		}
+	}
+	else
+	{
+		m_isPressedSpaceBar = false;
 	}
 
-
+	m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime);
+	m_tile->Rotate(kb);
+	
 	ActorManager::Instance().Update(timer.GetElapsedSeconds());
 
 }

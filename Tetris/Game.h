@@ -48,6 +48,7 @@ private:
 	std::mt19937								m_randomGenerator;
 	double										m_accumulatedTime;
 	double										m_keyPressedTime;
+	bool m_isPressedSpaceBar;
 	
 
 protected:

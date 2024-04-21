@@ -16,6 +16,10 @@ namespace DX
 		DirectX::XMFLOAT2 XM_CALLCONV GetPosition() { return m_position; }
 		void SetPivot(float x, float y) { m_pivot.x = x; m_pivot.y = y; }
 		DirectX::XMFLOAT2 GetPivot() { return m_pivot; }
+		void SetRotation(float r) { m_rotation = r; }
+		float GetRotation() { return m_rotation; }
+		void SetSize(float x, float y) { m_size.x = x; m_size.y = y; }
+		DirectX::XMFLOAT2 GetSize() { return m_size; }
 
 		virtual void OnDeviceLost() override;
 		virtual void OnDeviceRestored() override;

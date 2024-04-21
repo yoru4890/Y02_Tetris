@@ -49,6 +49,7 @@
 #include <sstream>
 #include <random>
 #include <chrono>
+#include <cmath>
 
 #include <stdio.h>
 

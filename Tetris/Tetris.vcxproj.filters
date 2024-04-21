@@ -48,6 +48,7 @@
     <ClCompile Include="TileI.cpp">
       <Filter>Tile</Filter>
     </ClCompile>
+    <ClCompile Include="TileBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
