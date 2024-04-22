@@ -100,6 +100,7 @@ void Game::SpawnTile()
 	m_tile = m_tiles[2];
 	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * 5, m_tile->GetSize().y / 2 + TILE_SIZE);
 	m_tile->SetStuckBySpaceBar(false);
+	m_tile->InitTile();
 }
 
 #pragma region Frame Update
@@ -116,7 +117,7 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {
-	if (m_tile->IsStuck(timer))
+	if (m_tile->IsStuck(timer, m_board))
 	{
 		SpawnTile();
 		return;
@@ -133,7 +134,7 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		if (!m_isPressedSpaceBar)
 		{
-			m_tile->SpaceBar();
+			m_tile->SpaceBar(m_board);
 			m_isPressedSpaceBar = true;
 		}
 	}
@@ -142,8 +143,8 @@ void Game::Update(DX::StepTimer const& timer)
 		m_isPressedSpaceBar = false;
 	}
 
-	m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime);
-	m_tile->Rotate(kb);
+	m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime, m_board);
+	m_tile->Rotate(kb, m_board);
 	
 	ActorManager::Instance().Update(timer.GetElapsedSeconds());
 

@@ -4,7 +4,7 @@
 using namespace DX;
 using namespace GameConstants;
 
-TileI::TileI() : m_state(), m_bottom(4), m_right(1), m_left()
+TileI::TileI() : m_state()
 {
 }
 
@@ -12,7 +12,13 @@ TileI::~TileI()
 {
 }
 
-void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb, double& accumulatedTime, double& keyPressedTime)
+void TileI::Move(
+	DX::StepTimer const& timer, 
+	DirectX::Keyboard::State const& kb, 
+	double& accumulatedTime, 
+	double& keyPressedTime,
+	std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board
+	)
 {
 	if (m_isStuckBySpaceBar) return;
 
@@ -22,9 +28,26 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 	{
 		accumulatedTime = 0.0;
 
-		if (this->GetPosition().y < (BOARD_ROW - 1 - m_bottom) * TILE_SIZE)
+		switch (m_state)
 		{
-			this->SetPosition(this->GetPosition().x, this->GetPosition().y + TILE_SIZE);
+			case UP:
+				{
+					int nextX{ m_tilePos[3].first };
+					int nextY{ m_tilePos[3].second + 1 };
+					if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
+					{
+						m_position.y += TILE_SIZE;
+						for (auto& e : m_tilePos)
+						{
+							e.second += 1;
+						}
+					}
+				}
+				break;
+			case RIGHT:
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -33,9 +56,36 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 	{
 		if (!keyPressedTime)
 		{
-			if (this->GetPosition().x < (BOARD_COL - 1 - m_right) * TILE_SIZE)
+			switch (m_state)
 			{
-				this->SetPosition(this->GetPosition().x + TILE_SIZE, this->GetPosition().y);
+				case UP:
+					{
+						bool isCanMove{ true };
+						for (const auto& e : m_tilePos)
+						{
+							int nextX{ e.first + 1 };
+							int nextY{ e.second };
+
+							if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
+							{
+								isCanMove = false;
+							}
+						}
+
+						if (isCanMove)
+						{
+							m_position.x += TILE_SIZE;
+							for (auto& e : m_tilePos)
+							{
+								e.first += 1;
+							}
+						}
+					}
+					break;
+				case RIGHT:
+					break;
+				default:
+					break;
 			}
 
 		}
@@ -43,9 +93,36 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 		{
 			if (keyPressedTime >= START_TIME_MOVE_TILE)
 			{
-				if (this->GetPosition().x < (BOARD_COL - 1 - m_right) * TILE_SIZE)
+				switch (m_state)
 				{
-					this->SetPosition(this->GetPosition().x + TILE_SIZE, this->GetPosition().y);
+					case UP:
+						{
+							bool isCanMove{ true };
+							for (const auto& e : m_tilePos)
+							{
+								int nextX{ e.first + 1 };
+								int nextY{ e.second };
+
+								if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
+								{
+									isCanMove = false;
+								}
+							}
+
+							if (isCanMove)
+							{
+								m_position.x += TILE_SIZE;
+								for (auto& e : m_tilePos)
+								{
+									e.first += 1;
+								}
+							}
+						}
+						break;
+					case RIGHT:
+						break;
+					default:
+						break;
 				}
 
 				keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
@@ -58,18 +135,72 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 	{
 		if (!keyPressedTime)
 		{
-			if (this->GetPosition().x > TILE_SIZE)
+			switch (m_state)
 			{
-				this->SetPosition(this->GetPosition().x - TILE_SIZE, this->GetPosition().y);
-			}			
+				case UP:
+					{
+						bool isCanMove{ true };
+						for (const auto& e : m_tilePos)
+						{
+							int nextX{ e.first - 1 };
+							int nextY{ e.second };
+
+							if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
+							{
+								isCanMove = false;
+							}
+						}
+
+						if (isCanMove)
+						{
+							m_position.x -= TILE_SIZE;
+							for (auto& e : m_tilePos)
+							{
+								e.first -= 1;
+							}
+						}
+					}
+					break;
+				case RIGHT:
+					break;
+				default:
+					break;
+			}		
 		}
 		else
 		{
 			if (keyPressedTime >= START_TIME_MOVE_TILE)
 			{
-				if (this->GetPosition().x > TILE_SIZE)
+				switch (m_state)
 				{
-					this->SetPosition(this->GetPosition().x - TILE_SIZE, this->GetPosition().y);
+					case UP:
+						{
+							bool isCanMove{ true };
+							for (const auto& e : m_tilePos)
+							{
+								int nextX{ e.first - 1 };
+								int nextY{ e.second };
+
+								if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
+								{
+									isCanMove = false;
+								}
+							}
+
+							if (isCanMove)
+							{
+								m_position.x -= TILE_SIZE;
+								for (auto& e : m_tilePos)
+								{
+									e.first -= 1;
+								}
+							}
+						}
+						break;
+					case RIGHT:
+						break;
+					default:
+						break;
 				}
 
 				keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
@@ -83,18 +214,52 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 	{
 		if (!keyPressedTime)
 		{
-			if (this->GetPosition().y < (BOARD_ROW - 1 - m_bottom) * TILE_SIZE)
+			switch (m_state)
 			{
-				this->SetPosition(this->GetPosition().x, this->GetPosition().y + TILE_SIZE);
+				case UP:
+					{
+						int nextX{ m_tilePos[3].first };
+						int nextY{ m_tilePos[3].second + 1 };
+						if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
+						{
+							m_position.y += TILE_SIZE;
+							for (auto& e : m_tilePos)
+							{
+								e.second += 1;
+							}
+						}
+					}
+					break;
+				case RIGHT:
+					break;
+				default:
+					break;
 			}
 		}
 		else
 		{
 			if (keyPressedTime >= START_TIME_MOVE_TILE)
 			{
-				if (this->GetPosition().y < (BOARD_ROW - 1 - m_bottom) * TILE_SIZE)
+				switch (m_state)
 				{
-					this->SetPosition(this->GetPosition().x, this->GetPosition().y + TILE_SIZE);
+					case UP:
+						{
+							int nextX{ m_tilePos[3].first };
+							int nextY{ m_tilePos[3].second + 1 };
+							if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
+							{
+								m_position.y += TILE_SIZE;
+								for (auto& e : m_tilePos)
+								{
+									e.second += 1;
+								}
+							}
+						}
+						break;
+					case RIGHT:
+						break;
+					default:
+						break;
 				}
 
 				keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
@@ -109,15 +274,105 @@ void TileI::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb,
 	}
 }
 
-void TileI::Rotate(DirectX::Keyboard::State const& kb)
+void TileI::Rotate(DirectX::Keyboard::State const& kb, std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	if (kb.Q)
 	{
 		if (!m_isCCWRotate)
 		{
-			m_isCCWRotate = true;
-			m_rotation -= PI / 2.0f;
-			m_rotation = fmodf(m_rotation, 2.0f * PI);
+			switch (m_state)
+			{
+				case UP:
+					{
+						int nextX{};
+						int nextY{ m_tilePos[1].second };
+						int moveCount{};
+
+						for (int i{}; i < 4; i++)
+						{
+							bool isRotate{ true };
+							if (i < 3)
+							{
+								nextX = m_tilePos[1].first - 2 + i;
+								if (nextX < 0)
+								{
+									moveCount++;
+									continue;
+								}
+								for (int j{}; j < 4; j++)
+								{
+									if (m_board[nextY * BOARD_COL + nextX + j] != ShapeTile::BLANK)
+									{
+										isRotate = false;
+										break;
+									}
+								}
+
+								if (isRotate)
+								{
+									for (int j{}; j < 4; j++)
+									{
+										m_tilePos[j].first = nextX + j;
+										m_tilePos[j].second = nextY;
+									}
+
+									m_isCCWRotate = true;
+									m_rotation -= PI / 2.0f;
+									m_rotation = fmodf(m_rotation, 2.0f * PI);
+
+									m_position.x -= TILE_SIZE / 2;
+									m_position.x += moveCount * TILE_SIZE;
+									m_position.y -= TILE_SIZE / 2;
+
+									m_state++;
+									m_state %= STATE_MAX_SIZE;
+									break;
+								}
+
+								moveCount++;
+							}
+							else
+							{
+								nextX = m_tilePos[1].first - 3;
+								for (int j{}; j < 4; j++)
+								{
+									if (m_board[nextY * BOARD_COL + nextX + j] != ShapeTile::BLANK)
+									{
+										isRotate = false;
+										break;
+									}
+								}
+
+								if (isRotate)
+								{
+									for (int j{}; j < 4; j++)
+									{
+										m_tilePos[j].first = nextX + j;
+										m_tilePos[j].second = nextY;
+									}
+
+									m_isCCWRotate = true;
+									m_rotation -= PI / 2.0f;
+									m_rotation = fmodf(m_rotation, 2.0f * PI);
+
+									m_position.x -= TILE_SIZE / 2;
+									m_position.x -= TILE_SIZE;
+									m_position.y -= TILE_SIZE / 2;
+
+									m_state++;
+									m_state %= STATE_MAX_SIZE;
+									break;
+								}
+							}
+							
+						}
+					}
+					break;
+				case RIGHT:
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	else
@@ -129,9 +384,99 @@ void TileI::Rotate(DirectX::Keyboard::State const& kb)
 	{
 		if (!m_isCWRotate)
 		{
-			m_isCWRotate = true;
-			m_rotation += PI / 2.0f;
-			m_rotation = fmodf(m_rotation, 2.0f * PI);
+			switch (m_state)
+			{
+				case UP:
+					{
+						int nextX{};
+						int nextY{ m_tilePos[1].second };
+						int moveCount{};
+
+						for (int i{}; i < 4; i++)
+						{
+							bool isRotate{ true };
+							if (i < 3)
+							{
+								nextX = m_tilePos[1].first - 2 + i;
+								if (nextX < 0)
+								{
+									moveCount++;
+									continue;
+								}
+								for (int j{}; j < 4; j++)
+								{
+									if (m_board[nextY * BOARD_COL + nextX + j] != ShapeTile::BLANK)
+									{
+										isRotate = false;
+										break;
+									}
+								}
+
+								if (isRotate)
+								{
+									for (int j{}; j < 4; j++)
+									{
+										m_tilePos[j].first = nextX + j;
+										m_tilePos[j].second = nextY;
+									}
+
+									m_isCWRotate = true;
+									m_rotation -= PI / 2.0f;
+									m_rotation = fmodf(m_rotation, 2.0f * PI);
+
+									m_position.x -= TILE_SIZE / 2;
+									m_position.x += moveCount * TILE_SIZE;
+									m_position.y -= TILE_SIZE / 2;
+
+									m_state++;
+									m_state %= STATE_MAX_SIZE;
+									break;
+								}
+
+								moveCount++;
+							}
+							else
+							{
+								nextX = m_tilePos[1].first - 3;
+								for (int j{}; j < 4; j++)
+								{
+									if (m_board[nextY * BOARD_COL + nextX + j] != ShapeTile::BLANK)
+									{
+										isRotate = false;
+										break;
+									}
+								}
+
+								if (isRotate)
+								{
+									for (int j{}; j < 4; j++)
+									{
+										m_tilePos[j].first = nextX + j;
+										m_tilePos[j].second = nextY;
+									}
+
+									m_isCWRotate = true;
+									m_rotation -= PI / 2.0f;
+									m_rotation = fmodf(m_rotation, 2.0f * PI);
+
+									m_position.x -= TILE_SIZE / 2;
+									m_position.x -= TILE_SIZE;
+									m_position.y -= TILE_SIZE / 2;
+
+									m_state++;
+									m_state %= STATE_MAX_SIZE;
+									break;
+								}
+							}
+
+						}
+					}
+					break;
+				case RIGHT:
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	else
@@ -140,11 +485,24 @@ void TileI::Rotate(DirectX::Keyboard::State const& kb)
 	}
 }
 
-bool TileI::IsStuck(DX::StepTimer const& timer)
+bool TileI::IsStuck(DX::StepTimer const& timer, std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
-	if (this->GetPosition().y >= (BOARD_ROW - 1 - m_bottom) * TILE_SIZE)
+	switch (m_state)
 	{
-		m_stuckTime += timer.GetElapsedSeconds();
+		case UP:
+			{
+				int nextX{ m_tilePos[3].first };
+				int nextY{ m_tilePos[3].second + 1 };
+				if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
+				{
+					m_stuckTime += timer.GetElapsedSeconds();
+				}
+			}
+			break;
+		case RIGHT:
+			break;
+		default:
+			break;
 	}
 
 	if (m_stuckTime >= CAN_MOVE_TIME)
@@ -156,12 +514,42 @@ bool TileI::IsStuck(DX::StepTimer const& timer)
 	return false;
 }
 
-void TileI::SpaceBar()
+void DX::TileI::InitTile()
+{
+	int tempPlus{};
+	for (auto& e : m_tilePos)
+	{
+		e.first = START_X;
+		e.second = START_Y + tempPlus++;
+	}
+}
+
+void TileI::SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	m_isStuckBySpaceBar = true;
 
-	while (this->GetPosition().y < (BOARD_ROW - 1 - m_bottom) * TILE_SIZE)
+	switch (m_state)
 	{
-		this->SetPosition(this->GetPosition().x, this->GetPosition().y + TILE_SIZE);
+		case UP:
+			{
+				int nextX{ m_tilePos[3].first };
+				int nextY{ m_tilePos[3].second};
+
+				while (m_board[(nextY+1) * BOARD_COL + nextX] == ShapeTile::BLANK)
+				{
+					m_position.y += TILE_SIZE;
+					nextY++;
+				}
+
+				m_tilePos[3].second = nextY;
+
+			}
+			break;
+		case RIGHT:
+			break;
+		default:
+			break;
 	}
+
+	
 }

@@ -8,22 +8,15 @@ DX::TileBase::~TileBase()
 {
 }
 
-void DX::TileBase::Move(DX::StepTimer const& timer, DirectX::Keyboard::State const& kb, double& accumulatedTime, double& keyPressedTime)
-{
-}
-
-void DX::TileBase::Rotate(DirectX::Keyboard::State const& kb)
-{
-}
-
-bool DX::TileBase::IsStuck(DX::StepTimer const& timer)
+bool DX::TileBase::IsStuck(DX::StepTimer const& timer, std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	return false;
 }
 
-void DX::TileBase::SpaceBar()
+void DX::TileBase::InitTile()
 {
 }
+
 
 void DX::TileBase::SetStuckBySpaceBar(bool isStuck)
 {
