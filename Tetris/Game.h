@@ -27,7 +27,7 @@ public:
 	virtual void OnWindowSizeChanged(int width, int height);
 	virtual void GetDefaultSize(int& width, int& height) const noexcept;
 
-	void StageInitialize(); // TODO
+	void StageInitialize();
 	void LineClearCheck(); // TODO
 	int GenerateRandomNumber(int min, int max);
 	void InitRandomSeed();

@@ -70,8 +70,6 @@ void Game::StageInitialize()
 	//m_tiles[8] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/Z.png");
 
 	SpawnTile();
-	// TODO
-	// 이미지파일들 어떻게 저장시키고 다룰지 고민
 
 }
 
@@ -117,9 +115,12 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {
-	if (m_tile->IsStuck(timer, m_board))
+	if (m_tile->IsStuck())
 	{
 		SpawnTile();
+		// TODO
+		// m_board에 저장시키기
+		// LineClear 시키고 m_board값 변화 (함수필요)
 		return;
 	}
 
@@ -169,6 +170,9 @@ void Game::Render()
 	
 	m_background->Draw(m_spriteBatch.get());
 	m_tile->Draw(m_spriteBatch.get());
+
+	//TODO
+	//m_board에 해당하는 값 그리기
 	//ActorManager().Instance().Draw(m_spriteBatch.get());
 	
 	m_spriteBatch->End();
