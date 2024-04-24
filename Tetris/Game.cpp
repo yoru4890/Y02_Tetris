@@ -10,7 +10,8 @@ using namespace GameConstants;
 using Microsoft::WRL::ComPtr;
 
 Game::Game() noexcept(false) : 
-	m_board(), m_tile(nullptr), m_accumulatedTime(), m_keyPressedTime(), m_tiles(), m_background(), m_isPressedSpaceBar(false)
+	m_board(), m_tiles(), m_oneTiles(), m_ghostTiles(), m_tile(nullptr), m_ghost(nullptr), m_background(nullptr),
+	m_accumulatedTime(), m_keyPressedTime(), m_isPressedSpaceBar(false)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -45,7 +46,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 void Game::StageInitialize()
 {
-	m_background = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Background),
+	m_background = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND),
 		L"Assets/Board.png"
 	);
 	m_background->SetPivot(0.0f, 0.0f);
@@ -61,13 +62,27 @@ void Game::StageInitialize()
 		m_board[i] = m_board[j] = GameConstants::ShapeTile::WALL;
 	}
 
-	m_tiles[2] = ActorManager::Instance().Create<TileI>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/I.png");
-	//m_tiles[3] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/J.png");
-	//m_tiles[4] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/L.png");
-	//m_tiles[5] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/O.png");
-	//m_tiles[6] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/S.png");
-	//m_tiles[7] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/T.png");
-	//m_tiles[8] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::Tile), L"Assets/Z.png");
+	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> tiles{ L"",L"", L"Assets/I.png",  L"Assets/J.png" ,  L"Assets/L.png" ,
+		L"Assets/O.png" ,  L"Assets/S.png" ,  L"Assets/T.png" ,  L"Assets/Z.png" };
+	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> oneTiles{ L"",L"", L"Assets/LightBlue.png",  L"Assets/Blue.png" ,  L"Assets/Orange.png" ,
+		L"Assets/Yellow.png" ,  L"Assets/Green.png" ,  L"Assets/Purple.png" ,  L"Assets/Red.png" };
+	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> ghostTiles{ L"",L"", L"Assets/I_Ghost.png",  L"Assets/J_Ghost.png" ,  L"Assets/L_Ghost.png" ,
+		L"Assets/O_Ghost.png" ,  L"Assets/S_Ghost.png" ,  L"Assets/T_Ghost.png" ,  L"Assets/Z_Ghost.png" };
+
+	m_tiles[2] = ActorManager::Instance().Create<TileI>(static_cast<int>(GameConstants::Layer::TILE), tiles[2].c_str());
+	/*m_tiles[3] = ActorManager::Instance().Create<TileJ>(static_cast<int>(GameConstants::Layer::TILE), tiles[3].c_str());
+	m_tiles[4] = ActorManager::Instance().Create<TileL>(static_cast<int>(GameConstants::Layer::TILE), tiles[4].c_str());
+	m_tiles[5] = ActorManager::Instance().Create<TileO>(static_cast<int>(GameConstants::Layer::TILE), tiles[5].c_str());
+	m_tiles[6] = ActorManager::Instance().Create<TileS>(static_cast<int>(GameConstants::Layer::TILE), tiles[6].c_str());
+	m_tiles[7] = ActorManager::Instance().Create<TileT>(static_cast<int>(GameConstants::Layer::TILE), tiles[7].c_str());
+	m_tiles[8] = ActorManager::Instance().Create<TileZ>(static_cast<int>(GameConstants::Layer::TILE), tiles[8].c_str());*/
+
+	for (int i{ 2 }; i < static_cast<int>(ShapeTile::UNKNOWN); i++)
+	{
+		m_oneTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BOARD), oneTiles[i].c_str());
+		m_ghostTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::GHOST), ghostTiles[i].c_str());
+	}
+
 
 	SpawnTile();
 
@@ -96,9 +111,29 @@ void Game::SpawnTile()
 	int randomNum{ GenerateRandomNumber(2,8) };
 
 	m_tile = m_tiles[2];
+	// m_ghost = m_ghostTiles[2];
+	// TODO 고스트 위치조정
 	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * 5, m_tile->GetSize().y / 2 + TILE_SIZE);
 	m_tile->SetStuckBySpaceBar(false);
 	m_tile->InitTile();
+}
+
+void Game::DrawBoard()
+{
+
+	m_background->Draw(m_spriteBatch.get());
+	m_tile->Draw(m_spriteBatch.get());
+
+	for (int i{}; i<BOARD_SIZE; i++)
+	{
+		if (m_board[i] != ShapeTile::BLANK && m_board[i] != ShapeTile::WALL)
+		{
+			m_oneTiles[static_cast<int>(m_board[i])]->SetPosition((i % BOARD_COL) * TILE_SIZE + TILE_SIZE / 2, (i / BOARD_COL) * TILE_SIZE + TILE_SIZE / 2);
+			m_oneTiles[static_cast<int>(m_board[i])]->Draw(m_spriteBatch.get());
+		}
+	}
+
+	//ActorManager().Instance().Draw(m_spriteBatch.get());
 }
 
 #pragma region Frame Update
@@ -117,13 +152,16 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	if (m_tile->IsStuck())
 	{
+		m_tile->StackBoard(m_board);
+
 		SpawnTile();
-		// TODO
-		// m_board에 저장시키기
+		
+
+
 		// LineClear 시키고 m_board값 변화 (함수필요)
 		return;
 	}
-
+	
 	auto kb = m_keyboard->GetState();
 	
 	if (kb.Escape)
@@ -167,13 +205,7 @@ void Game::Render()
 
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_commonStates->NonPremultiplied());
 
-	
-	m_background->Draw(m_spriteBatch.get());
-	m_tile->Draw(m_spriteBatch.get());
-
-	//TODO
-	//m_board에 해당하는 값 그리기
-	//ActorManager().Instance().Draw(m_spriteBatch.get());
+	DrawBoard();
 	
 	m_spriteBatch->End();
 

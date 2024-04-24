@@ -16,10 +16,10 @@ namespace GameConstants
 
 	enum class Layer
 	{
-		Background,
-		Tile,
-		Score,
-		Board,
+		BACKGROUND,
+		TILE,
+		BOARD,
+		GHOST,
 
 		UNKNOWN
 	};

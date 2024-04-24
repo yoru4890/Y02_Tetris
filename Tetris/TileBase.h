@@ -23,6 +23,7 @@ namespace DX
 		bool IsStuckBySpaceBar() { return m_isStuckBySpaceBar; };
 		void SetStuckBySpaceBar(bool isStuck);
 		bool IsStuck() { return m_isStuck; }
+		void StackBoard(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
 
 	protected:
 		double m_stuckTime{ 0.0 };
@@ -31,6 +32,7 @@ namespace DX
 		bool m_isCWRotate{};
 		bool m_isStuck{};
 		std::array<std::pair<int, int>, 4> m_tilePos;
+		GameConstants::ShapeTile m_shape{};
 
 		enum State
 		{

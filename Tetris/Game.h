@@ -32,6 +32,7 @@ public:
 	int GenerateRandomNumber(int min, int max);
 	void InitRandomSeed();
 	void SpawnTile();
+	void DrawBoard();
 
 protected:
 	virtual void Update(DX::StepTimer const& timer);
@@ -43,7 +44,10 @@ protected:
 private:
 	std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>	m_board;
 	std::array<DX::TileBase*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_tiles;
+	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_oneTiles;
+	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_ghostTiles;
 	DX::TileBase* m_tile;
+	DX::Actor* m_ghost;
 	DX::Actor* m_background;
 	std::mt19937								m_randomGenerator;
 	double										m_accumulatedTime;

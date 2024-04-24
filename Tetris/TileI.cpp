@@ -805,6 +805,7 @@ void DX::TileI::InitTile()
 	m_isStuck = false;
 	m_rotation = 0.f;
 	m_stuckTime = 0.0;
+	m_shape = ShapeTile::I_SHAPE;
 }
 
 void TileI::SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
@@ -824,7 +825,12 @@ void TileI::SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_S
 					nextY++;
 				}
 
-				m_tilePos[3].second = nextY;
+				nextY -= 3;
+
+				for (auto& e : m_tilePos)
+				{
+					e.second = nextY++;
+				}
 
 			}
 			break;
