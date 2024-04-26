@@ -28,11 +28,11 @@ public:
 	virtual void GetDefaultSize(int& width, int& height) const noexcept;
 
 	void StageInitialize();
-	void LineClearCheck(); // TODO
-	int GenerateRandomNumber(int min, int max);
+	void LineClearCheck();
 	void InitRandomSeed();
 	void SpawnTile();
 	void DrawBoard();
+	int GenerateRandomNumber(int min, int max);
 
 protected:
 	virtual void Update(DX::StepTimer const& timer);

@@ -70,12 +70,12 @@ void Game::StageInitialize()
 		L"Assets/O_Ghost.png" ,  L"Assets/S_Ghost.png" ,  L"Assets/T_Ghost.png" ,  L"Assets/Z_Ghost.png" };
 
 	m_tiles[2] = ActorManager::Instance().Create<TileI>(static_cast<int>(GameConstants::Layer::TILE), tiles[2].c_str());
-	/*m_tiles[3] = ActorManager::Instance().Create<TileJ>(static_cast<int>(GameConstants::Layer::TILE), tiles[3].c_str());
-	m_tiles[4] = ActorManager::Instance().Create<TileL>(static_cast<int>(GameConstants::Layer::TILE), tiles[4].c_str());
-	m_tiles[5] = ActorManager::Instance().Create<TileO>(static_cast<int>(GameConstants::Layer::TILE), tiles[5].c_str());
-	m_tiles[6] = ActorManager::Instance().Create<TileS>(static_cast<int>(GameConstants::Layer::TILE), tiles[6].c_str());
-	m_tiles[7] = ActorManager::Instance().Create<TileT>(static_cast<int>(GameConstants::Layer::TILE), tiles[7].c_str());
-	m_tiles[8] = ActorManager::Instance().Create<TileZ>(static_cast<int>(GameConstants::Layer::TILE), tiles[8].c_str());*/
+	m_tiles[3] = ActorManager::Instance().Create<TileJ>(static_cast<int>(GameConstants::Layer::TILE), tiles[3].c_str());
+	//m_tiles[4] = ActorManager::Instance().Create<TileL>(static_cast<int>(GameConstants::Layer::TILE), tiles[4].c_str());
+	//m_tiles[5] = ActorManager::Instance().Create<TileO>(static_cast<int>(GameConstants::Layer::TILE), tiles[5].c_str());
+	//m_tiles[6] = ActorManager::Instance().Create<TileS>(static_cast<int>(GameConstants::Layer::TILE), tiles[6].c_str());
+	//m_tiles[7] = ActorManager::Instance().Create<TileT>(static_cast<int>(GameConstants::Layer::TILE), tiles[7].c_str());
+	//m_tiles[8] = ActorManager::Instance().Create<TileZ>(static_cast<int>(GameConstants::Layer::TILE), tiles[8].c_str());
 
 	for (int i{ 2 }; i < static_cast<int>(ShapeTile::UNKNOWN); i++)
 	{
@@ -90,17 +90,42 @@ void Game::StageInitialize()
 
 void Game::LineClearCheck()
 {
-}
+	for (int i{ BOARD_ROW - 2 }; i > 0; i--)
+	{
+		bool isLineClear{ true };
+		while (isLineClear)
+		{
+			for (int j{ 1 }; j < BOARD_COL - 1; j++)
+			{
+				if (m_board[i * BOARD_COL + j] == ShapeTile::BLANK || m_board[i * BOARD_COL + 1] != m_board[i * BOARD_COL + j])
+				{
+					isLineClear = false;
+					break;
+				}
+			}
 
-int Game::GenerateRandomNumber(int min, int max)
-{
-	std::uniform_int_distribution<> dist(min, max);
-	return dist(m_randomGenerator);
+			if (isLineClear)
+			{
+				for (int j{ i }; j > 1; j--)
+				{
+					for (int k{ 1 }; k < BOARD_COL - 1; k++)
+					{
+						m_board[j * BOARD_COL + k] = m_board[(j - 1) * BOARD_COL + k];
+					}
+				}
+
+				for (int j{ 1 }; j < BOARD_COL; j++)
+				{
+					m_board[BOARD_COL + j] = ShapeTile::BLANK;
+				}
+			}
+		}
+	}
 }
 
 void Game::InitRandomSeed()
 {
-	unsigned seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
+	unsigned int seed = static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count());
 	m_randomGenerator.seed(seed);
 }
 
@@ -108,12 +133,11 @@ void Game::SpawnTile()
 {
 	m_keyPressedTime = 0.0;
 
-	int randomNum{ GenerateRandomNumber(2,8) };
+	int randomNum{ GenerateRandomNumber(2,3) };
 
-	m_tile = m_tiles[2];
-	// m_ghost = m_ghostTiles[2];
-	// TODO 고스트 위치조정
-	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * 5, m_tile->GetSize().y / 2 + TILE_SIZE);
+	m_tile = m_tiles[randomNum];
+	m_ghost = m_ghostTiles[randomNum];
+	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * START_X, m_tile->GetSize().y / 2 + TILE_SIZE * START_Y);
 	m_tile->SetStuckBySpaceBar(false);
 	m_tile->InitTile();
 }
@@ -133,7 +157,14 @@ void Game::DrawBoard()
 		}
 	}
 
+	m_ghost->Draw(m_spriteBatch.get());
 	//ActorManager().Instance().Draw(m_spriteBatch.get());
+}
+
+int Game::GenerateRandomNumber(int min, int max)
+{
+	std::uniform_int_distribution<> dist(min, max);
+	return dist(m_randomGenerator);
 }
 
 #pragma region Frame Update
@@ -154,11 +185,10 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		m_tile->StackBoard(m_board);
 
+		LineClearCheck();
+
 		SpawnTile();
 		
-
-
-		// LineClear 시키고 m_board값 변화 (함수필요)
 		return;
 	}
 	
@@ -184,6 +214,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 	m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime, m_board);
 	m_tile->Rotate(kb, m_board);
+
+	m_tile->SetGhost(m_ghost, m_board);
 	
 	ActorManager::Instance().Update(timer.GetElapsedSeconds());
 

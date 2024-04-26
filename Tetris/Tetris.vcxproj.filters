@@ -49,6 +49,9 @@
       <Filter>Tile</Filter>
     </ClCompile>
     <ClCompile Include="TileBase.cpp" />
+    <ClCompile Include="TileJ.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -88,6 +91,9 @@
       <Filter>Tile</Filter>
     </ClInclude>
     <ClInclude Include="TileI.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileJ.h">
       <Filter>Tile</Filter>
     </ClInclude>
   </ItemGroup>

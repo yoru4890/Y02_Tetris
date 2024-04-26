@@ -9,38 +9,55 @@ namespace DX
 		TileBase();
 		virtual ~TileBase();
 
-		virtual void Move(
+		virtual void InitTile();
+		virtual void Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
+		virtual void CCWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int moveDir, int xDir, int yDir);
+		virtual void CWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int moveDir, int xDir, int yDir);
+		virtual void SpaceBar(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board) {}
+		virtual void SetGhost(Actor* const& m_ghost, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board) {}
+
+		void Move(
 			DX::StepTimer const& timer,
 			DirectX::Keyboard::State const& kb,
 			double& accumulatedTime,
 			double& keyPressedTime,
-			std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board
-		) {}
-		virtual void Rotate(DirectX::Keyboard::State const& kb, std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board) {}
-		virtual void InitTile();
-		virtual void SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board) {}
+			const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board
+		);
+		void MoveDown(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
+		void MoveRight(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
+		void MoveLeft(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
 
-		bool IsStuckBySpaceBar() { return m_isStuckBySpaceBar; };
 		void SetStuckBySpaceBar(bool isStuck);
-		bool IsStuck() { return m_isStuck; }
 		void StackBoard(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
 
+		bool IsStuck() { return m_isStuck; }
+		bool IsStuckBySpaceBar() { return m_isStuckBySpaceBar; };
+
 	protected:
-		double m_stuckTime{ 0.0 };
-		bool m_isStuckBySpaceBar{};
-		bool m_isCCWRotate{};
-		bool m_isCWRotate{};
-		bool m_isStuck{};
-		std::array<std::pair<int, int>, 4> m_tilePos;
-		GameConstants::ShapeTile m_shape{};
 
 		enum State
 		{
 			UP,
 			RIGHT,
 			DOWN,
-			LEFT
+			LEFT,
+
+			SIZE
 		};
+
+		const float ROTATION_OFFSET{ 1.5f };
+		std::array<std::pair<const float, const float>, 36> START_POS;
+
+		bool m_isStuckBySpaceBar{};
+		bool m_isCCWRotate{};
+		bool m_isCWRotate{};
+		bool m_isStuck{};
+		double m_stuckTime{ 0.0 };
+		int m_state{};
+
+		std::array<std::pair<float, float>, 4> m_tilePos;
+		GameConstants::ShapeTile m_shape{};
+		
 	};
 
 }

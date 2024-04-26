@@ -36,6 +36,6 @@ namespace GameConstants
 		T_SHAPE,
 		Z_SHAPE,
 
-		UNKNOWN
+		SIZE
 	};
 };

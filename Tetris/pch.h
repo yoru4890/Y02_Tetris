@@ -99,6 +99,7 @@
 #include "ActorManager.h"
 #include "TileBase.h"
 #include "TileI.h"
+#include "TileJ.h"
 #include "Game.h"
 
 namespace DX

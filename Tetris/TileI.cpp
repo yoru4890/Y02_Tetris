@@ -4,7 +4,9 @@
 using namespace DX;
 using namespace GameConstants;
 
-TileI::TileI() : m_state()
+TileI::TileI() : m_offset{ { 
+	{ 0,0 }, { 0,1 }, { 0,2 }, { 0,3 }
+	} }
 {
 }
 
@@ -12,396 +14,22 @@ TileI::~TileI()
 {
 }
 
-void TileI::Move(
-	DX::StepTimer const& timer, 
-	DirectX::Keyboard::State const& kb, 
-	double& accumulatedTime, 
-	double& keyPressedTime,
-	std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board
-	)
+void DX::TileI::InitTile()
 {
-	if (m_isStuckBySpaceBar)
+	for (int i{}; i < 4; i++)
 	{
-		m_stuckTime += timer.GetElapsedSeconds();
-
-		if (m_stuckTime >= TILE_DOWN_TIME/2)
-		{
-			m_isStuck = true;
-		}
-		return;
+		m_tilePos[i].first = START_X + m_offset[i].first;
+		m_tilePos[i].second = START_Y + m_offset[i].second;
 	}
 
-	accumulatedTime += timer.GetElapsedSeconds();
-
-	switch (m_state)
-	{
-		case State::UP:
-			{
-				if (accumulatedTime >= TILE_DOWN_TIME)
-				{
-					accumulatedTime = 0.0;
-
-					int nextX{ m_tilePos[3].first };
-					int nextY{ m_tilePos[3].second + 1 };
-					if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-					{
-						m_position.y += TILE_SIZE;
-						for (auto& e : m_tilePos)
-						{
-							e.second += 1;
-						}
-					}
-					else
-					{
-						m_isStuck = true;
-					}
-				}
-
-				if (kb.D)
-				{
-					if (!keyPressedTime)
-					{
-						bool isCanMove{ true };
-						for (const auto& e : m_tilePos)
-						{
-							int nextX{ e.first + 1 };
-							int nextY{ e.second };
-
-							if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
-							{
-								isCanMove = false;
-							}
-						}
-
-						if (isCanMove)
-						{
-							m_position.x += TILE_SIZE;
-							for (auto& e : m_tilePos)
-							{
-								e.first += 1;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							bool isCanMove{ true };
-							for (const auto& e : m_tilePos)
-							{
-								int nextX{ e.first + 1 };
-								int nextY{ e.second };
-
-								if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
-								{
-									isCanMove = false;
-								}
-							}
-
-							if (isCanMove)
-							{
-								m_position.x += TILE_SIZE;
-								for (auto& e : m_tilePos)
-								{
-									e.first += 1;
-								}
-							}
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-				}
-				else if (kb.A)
-				{
-					if (!keyPressedTime)
-					{
-						bool isCanMove{ true };
-						for (const auto& e : m_tilePos)
-						{
-							int nextX{ e.first - 1 };
-							int nextY{ e.second };
-
-							if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
-							{
-								isCanMove = false;
-							}
-						}
-
-						if (isCanMove)
-						{
-							m_position.x -= TILE_SIZE;
-							for (auto& e : m_tilePos)
-							{
-								e.first -= 1;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							bool isCanMove{ true };
-							for (const auto& e : m_tilePos)
-							{
-								int nextX{ e.first - 1 };
-								int nextY{ e.second };
-
-								if (m_board[nextY * BOARD_COL + nextX] != ShapeTile::BLANK)
-								{
-									isCanMove = false;
-								}
-							}
-
-							if (isCanMove)
-							{
-								m_position.x -= TILE_SIZE;
-								for (auto& e : m_tilePos)
-								{
-									e.first -= 1;
-								}
-							}
-							
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-
-				}
-				else if (kb.S)
-				{
-					if (!keyPressedTime)
-					{
-						int nextX{ m_tilePos[3].first };
-						int nextY{ m_tilePos[3].second + 1 };
-						if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-						{
-							m_position.y += TILE_SIZE;
-							for (auto& e : m_tilePos)
-							{
-								e.second += 1;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							int nextX{ m_tilePos[3].first };
-							int nextY{ m_tilePos[3].second + 1 };
-							if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-							{
-								m_position.y += TILE_SIZE;
-								for (auto& e : m_tilePos)
-								{
-									e.second += 1;
-								}
-							}
-
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-				}
-				else
-				{
-					keyPressedTime = 0.0;
-				}
-
-			}
-			break;
-		case State::RIGHT:
-			{
-				if (accumulatedTime >= TILE_DOWN_TIME)
-				{
-					accumulatedTime = 0.0;
-
-					int nextX{ m_tilePos[0].first };
-					int nextY{ m_tilePos[0].second + 1 };
-					bool isCanMove{ true };
-
-					for (int i{}; i<4; i++)
-					{
-						if (m_board[nextY * BOARD_COL + nextX + i] != ShapeTile::BLANK)
-						{
-							isCanMove = false;
-							break;
-						}
-					}
-
-					if (isCanMove)
-					{
-						m_position.y += TILE_SIZE;
-
-						for (auto& e : m_tilePos)
-						{
-							e.second++;
-						}
-					}
-					else
-					{
-						m_isStuck = true;
-					}
-				}
-
-				if (kb.D)
-				{
-					if (!keyPressedTime)
-					{	
-						int nextX{ m_tilePos[3].first + 1 };
-						int nextY{ m_tilePos[3].second };
-
-						if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-						{
-							m_position.x += TILE_SIZE;
-
-							for (auto& e : m_tilePos)
-							{
-								e.first++;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							int nextX{ m_tilePos[3].first + 1 };
-							int nextY{ m_tilePos[3].second };
-
-							if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-							{
-								m_position.x += TILE_SIZE;
-
-								for (auto& e : m_tilePos)
-								{
-									e.first++;
-								}
-							}
-
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-				}
-				else if (kb.A)
-				{
-					if (!keyPressedTime)
-					{
-						int nextX{ m_tilePos[0].first - 1 };
-						int nextY{ m_tilePos[0].second };
-
-						if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-						{
-							m_position.x -= TILE_SIZE;
-
-							for (auto& e : m_tilePos)
-							{
-								e.first--;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							int nextX{ m_tilePos[0].first - 1 };
-							int nextY{ m_tilePos[0].second };
-
-							if (m_board[nextY * BOARD_COL + nextX] == ShapeTile::BLANK)
-							{
-								m_position.x -= TILE_SIZE;
-
-								for (auto& e : m_tilePos)
-								{
-									e.first--;
-								}
-							}
-
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-
-				}
-				else if (kb.S)
-				{
-					if (!keyPressedTime)
-					{
-						int nextX{ m_tilePos[0].first };
-						int nextY{ m_tilePos[0].second + 1 };
-
-						bool isCanMove{ true };
-
-						for (int i{}; i < 4; i++)
-						{
-							if (m_board[nextY * BOARD_COL + nextX + i] != ShapeTile::BLANK)
-							{
-								isCanMove = false;
-								break;
-							}
-						}
-
-						if (isCanMove)
-						{
-							m_position.y += TILE_SIZE;
-
-							for (auto& e : m_tilePos)
-							{
-								e.second++;
-							}
-						}
-					}
-					else
-					{
-						if (keyPressedTime >= START_TIME_MOVE_TILE)
-						{
-							int nextX{ m_tilePos[0].first };
-							int nextY{ m_tilePos[0].second + 1 };
-
-							bool isCanMove{ true };
-
-							for (int i{}; i < 4; i++)
-							{
-								if (m_board[nextY * BOARD_COL + nextX + i] != ShapeTile::BLANK)
-								{
-									isCanMove = false;
-									break;
-								}
-							}
-
-							if (isCanMove)
-							{
-								m_position.y += TILE_SIZE;
-
-								for (auto& e : m_tilePos)
-								{
-									e.second++;
-								}
-							}
-
-							keyPressedTime = KEY_PRESSED_INTERVAL_TIME;
-						}
-					}
-
-					keyPressedTime += timer.GetElapsedSeconds();
-				}
-				else
-				{
-					keyPressedTime = 0.0;
-				}
-			}
-			break;
-		default:
-			break;
-	}
-
+	m_state = UP;
+	m_isStuck = false;
+	m_rotation = 0.f;
+	m_stuckTime = 0.0;
+	m_shape = ShapeTile::I_SHAPE;
 }
 
-void TileI::Rotate(DirectX::Keyboard::State const& kb, std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+void TileI::Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	switch (m_state)
 	{
@@ -792,23 +420,7 @@ void TileI::Rotate(DirectX::Keyboard::State const& kb, std::array<GameConstants:
 	
 }
 
-void DX::TileI::InitTile()
-{
-	int tempPlus{};
-	for (auto& e : m_tilePos)
-	{
-		e.first = START_X;
-		e.second = START_Y + tempPlus++;
-	}
-
-	m_state = UP;
-	m_isStuck = false;
-	m_rotation = 0.f;
-	m_stuckTime = 0.0;
-	m_shape = ShapeTile::I_SHAPE;
-}
-
-void TileI::SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+void TileI::SpaceBar(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	m_isStuckBySpaceBar = true;
 
@@ -870,4 +482,58 @@ void TileI::SpaceBar(std::array<GameConstants::ShapeTile, GameConstants::BOARD_S
 	}
 
 	
+}
+
+void DX::TileI::SetGhost(Actor* const& m_ghost, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+{
+	m_ghost->SetRotation(m_rotation);
+	int moveCount{};
+
+	switch (m_state)
+	{
+		case State::UP:
+			{
+				int nextX{ m_tilePos[3].first };
+				int nextY{ m_tilePos[3].second };
+
+				while (m_board[(nextY + moveCount +1) * BOARD_COL + nextX] == ShapeTile::BLANK)
+				{
+					++moveCount;
+				}
+
+				m_ghost->SetPosition(m_position.x, m_position.y + TILE_SIZE * moveCount);
+
+			}
+			break;
+		case State::RIGHT:
+			{
+				int nextX{ m_tilePos[0].first };
+				int nextY{ m_tilePos[0].second };
+
+				bool isCanMove{ true };
+
+				while (isCanMove)
+				{
+					for (int i{}; i < 4; i++)
+					{
+						if (m_board[(nextY + moveCount +1) * BOARD_COL + nextX + i] != ShapeTile::BLANK)
+						{
+							isCanMove = false;
+							break;
+						}
+					}
+
+					if (!isCanMove) break;
+
+					++moveCount;
+
+				}
+
+				m_ghost->SetPosition(m_position.x, m_position.y + TILE_SIZE * moveCount);
+
+			}
+			break;
+		default:
+			break;
+	}
 }
