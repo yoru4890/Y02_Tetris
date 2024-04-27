@@ -11,7 +11,19 @@ using Microsoft::WRL::ComPtr;
 
 Game::Game() noexcept(false) : 
 	m_board(), m_tiles(), m_oneTiles(), m_ghostTiles(), m_tile(nullptr), m_ghost(nullptr), m_background(nullptr),
-	m_accumulatedTime(), m_keyPressedTime(), m_isPressedSpaceBar(false)
+	m_accumulatedTime(), m_keyPressedTime(), m_isPressedSpaceBar(false),
+	PIVOT_POS
+	{ {
+		{},
+		{},
+		{ 1, 2 },	// I_SHAPE
+		{ 1, 1 },	// J_SHAPE
+		{ 2, 1 },	// L_SHAPE
+		{ 1, 1 },	// O_SHAPE
+		{ 2, 1 },	// S_SHAPE
+		{ 2, 1 },	// T_SHAPE
+		{ 1, 1 }	// Z_SHAPE
+	} }
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -62,27 +74,33 @@ void Game::StageInitialize()
 		m_board[i] = m_board[j] = GameConstants::ShapeTile::WALL;
 	}
 
-	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> tiles{ L"",L"", L"Assets/I.png",  L"Assets/J.png" ,  L"Assets/L.png" ,
+	std::array<std::wstring, static_cast<int>(ShapeTile::SIZE)> tiles{ L"",L"", L"Assets/I.png",  L"Assets/J.png" ,  L"Assets/L.png" ,
 		L"Assets/O.png" ,  L"Assets/S.png" ,  L"Assets/T.png" ,  L"Assets/Z.png" };
-	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> oneTiles{ L"",L"", L"Assets/LightBlue.png",  L"Assets/Blue.png" ,  L"Assets/Orange.png" ,
+	std::array<std::wstring, static_cast<int>(ShapeTile::SIZE)> oneTiles{ L"",L"", L"Assets/LightBlue.png",  L"Assets/Blue.png" ,  L"Assets/Orange.png" ,
 		L"Assets/Yellow.png" ,  L"Assets/Green.png" ,  L"Assets/Purple.png" ,  L"Assets/Red.png" };
-	std::array<std::wstring, static_cast<int>(ShapeTile::UNKNOWN)> ghostTiles{ L"",L"", L"Assets/I_Ghost.png",  L"Assets/J_Ghost.png" ,  L"Assets/L_Ghost.png" ,
+	std::array<std::wstring, static_cast<int>(ShapeTile::SIZE)> ghostTiles{ L"",L"", L"Assets/I_Ghost.png",  L"Assets/J_Ghost.png" ,  L"Assets/L_Ghost.png" ,
 		L"Assets/O_Ghost.png" ,  L"Assets/S_Ghost.png" ,  L"Assets/T_Ghost.png" ,  L"Assets/Z_Ghost.png" };
 
 	m_tiles[2] = ActorManager::Instance().Create<TileI>(static_cast<int>(GameConstants::Layer::TILE), tiles[2].c_str());
 	m_tiles[3] = ActorManager::Instance().Create<TileJ>(static_cast<int>(GameConstants::Layer::TILE), tiles[3].c_str());
-	//m_tiles[4] = ActorManager::Instance().Create<TileL>(static_cast<int>(GameConstants::Layer::TILE), tiles[4].c_str());
-	//m_tiles[5] = ActorManager::Instance().Create<TileO>(static_cast<int>(GameConstants::Layer::TILE), tiles[5].c_str());
-	//m_tiles[6] = ActorManager::Instance().Create<TileS>(static_cast<int>(GameConstants::Layer::TILE), tiles[6].c_str());
-	//m_tiles[7] = ActorManager::Instance().Create<TileT>(static_cast<int>(GameConstants::Layer::TILE), tiles[7].c_str());
-	//m_tiles[8] = ActorManager::Instance().Create<TileZ>(static_cast<int>(GameConstants::Layer::TILE), tiles[8].c_str());
+	m_tiles[4] = ActorManager::Instance().Create<TileL>(static_cast<int>(GameConstants::Layer::TILE), tiles[4].c_str());
+	m_tiles[5] = ActorManager::Instance().Create<TileO>(static_cast<int>(GameConstants::Layer::TILE), tiles[5].c_str());
+	m_tiles[6] = ActorManager::Instance().Create<TileS>(static_cast<int>(GameConstants::Layer::TILE), tiles[6].c_str());
+	m_tiles[7] = ActorManager::Instance().Create<TileT>(static_cast<int>(GameConstants::Layer::TILE), tiles[7].c_str());
+	m_tiles[8] = ActorManager::Instance().Create<TileZ>(static_cast<int>(GameConstants::Layer::TILE), tiles[8].c_str());
 
-	for (int i{ 2 }; i < static_cast<int>(ShapeTile::UNKNOWN); i++)
+	for (int i{ static_cast<int>(ShapeTile::I_SHAPE) }; i < static_cast<int>(ShapeTile::SIZE); i++)
 	{
 		m_oneTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BOARD), oneTiles[i].c_str());
 		m_ghostTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::GHOST), ghostTiles[i].c_str());
+		m_ghostTiles[i]->SetPivot(PIVOT_POS[i].first * TILE_SIZE, PIVOT_POS[i].second * TILE_SIZE);
+		m_ghostTiles[i]->SetPosition(-100.0f, -100.0f);
 	}
 
+	for (int i{ static_cast<int>(ShapeTile::I_SHAPE) }; i < static_cast<int>(ShapeTile::SIZE); i++)
+	{
+		m_tiles[i]->SetPivot(PIVOT_POS[i].first * TILE_SIZE, PIVOT_POS[i].second * TILE_SIZE);
+	}
 
 	SpawnTile();
 
@@ -133,13 +151,12 @@ void Game::SpawnTile()
 {
 	m_keyPressedTime = 0.0;
 
-	int randomNum{ GenerateRandomNumber(2,3) };
+	int randomNum{ GenerateRandomNumber(static_cast<int>(ShapeTile::I_SHAPE),static_cast<int>(ShapeTile::Z_SHAPE)) };
 
 	m_tile = m_tiles[randomNum];
 	m_ghost = m_ghostTiles[randomNum];
-	m_tile->SetPosition(m_tile->GetSize().x / 2 + TILE_SIZE * START_X, m_tile->GetSize().y / 2 + TILE_SIZE * START_Y);
-	m_tile->SetStuckBySpaceBar(false);
-	m_tile->InitTile();
+	m_tile->SetPosition(TILE_SIZE * START_X, TILE_SIZE * START_Y);
+	m_tile->InitTile(static_cast<ShapeTile>(randomNum));
 }
 
 void Game::DrawBoard()

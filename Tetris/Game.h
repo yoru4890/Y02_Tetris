@@ -42,10 +42,11 @@ protected:
 	virtual void CreateWindowSizeDependentResources();
 
 private:
+	std::array<std::pair<const int, const int>, 9> PIVOT_POS;
 	std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>	m_board;
-	std::array<DX::TileBase*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_tiles;
-	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_oneTiles;
-	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::UNKNOWN)> m_ghostTiles;
+	std::array<DX::TileBase*, static_cast<int>(GameConstants::ShapeTile::SIZE)> m_tiles;
+	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::SIZE)> m_oneTiles;
+	std::array<DX::Actor*, static_cast<int>(GameConstants::ShapeTile::SIZE)> m_ghostTiles;
 	DX::TileBase* m_tile;
 	DX::Actor* m_ghost;
 	DX::Actor* m_background;

@@ -100,6 +100,11 @@
 #include "TileBase.h"
 #include "TileI.h"
 #include "TileJ.h"
+#include "TileL.h"
+#include "TileO.h"
+#include "TileS.h"
+#include "TileT.h"
+#include "TileZ.h"
 #include "Game.h"
 
 namespace DX

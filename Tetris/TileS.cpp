@@ -1,39 +1,39 @@
 #include "pch.h"
-#include "TileJ.h"
+#include "TileS.h"
 
 using namespace DX;
 using namespace GameConstants;
 
-DX::TileJ::TileJ()
+DX::TileS::TileS()
 {
 }
 
-DX::TileJ::~TileJ()
+DX::TileS::~TileS()
 {
 }
 
-void DX::TileJ::InitTile(GameConstants::ShapeTile shapeTile)
+void DX::TileS::InitTile(GameConstants::ShapeTile shapeTile)
 {
 	TileBase::InitTile(shapeTile);
 }
 
-void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+void DX::TileS::Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	if (kb.Q)
 	{
 		switch (m_state)
 		{
 			case UP:
-				CCWRotate(m_board);
+				CCWRotate(m_board, 0, -1);
 				break;
 			case RIGHT:
-				CCWRotate(m_board, -1);
+				CCWRotate(m_board, 1);
 				break;
 			case DOWN:
 				CCWRotate(m_board);
 				break;
 			case LEFT:
-				CCWRotate(m_board, 1);
+				CCWRotate(m_board, -1);
 				break;
 			case SIZE:
 				break;
@@ -54,13 +54,13 @@ void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 				CWRotate(m_board);
 				break;
 			case RIGHT:
-				CWRotate(m_board, 1);
+				CWRotate(m_board, -1);
 				break;
 			case DOWN:
-				CWRotate(m_board);
+				CWRotate(m_board, 0, -1);
 				break;
 			case LEFT:
-				CWRotate(m_board, -1);
+				CWRotate(m_board, 1);
 				break;
 			case SIZE:
 				break;
@@ -74,7 +74,7 @@ void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 	}
 }
 
-void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
+void DX::TileS::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
 {
 	if (!m_isCCWRotate)
 	{
@@ -125,7 +125,7 @@ void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstan
 	}
 }
 
-void DX::TileJ::CWRotate(const const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
+void DX::TileS::CWRotate(const const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
 {
 	if (!m_isCWRotate)
 	{

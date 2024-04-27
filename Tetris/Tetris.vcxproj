@@ -156,6 +156,11 @@
     <ClCompile Include="TileBase.cpp" />
     <ClCompile Include="TileI.cpp" />
     <ClCompile Include="TileJ.cpp" />
+    <ClCompile Include="TileL.cpp" />
+    <ClCompile Include="TileO.cpp" />
+    <ClCompile Include="TileS.cpp" />
+    <ClCompile Include="TileT.cpp" />
+    <ClCompile Include="TileZ.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +177,11 @@
     <ClInclude Include="TileI.h" />
     <ClInclude Include="TileBase.h" />
     <ClInclude Include="TileJ.h" />
+    <ClInclude Include="TileL.h" />
+    <ClInclude Include="TileO.h" />
+    <ClInclude Include="TileS.h" />
+    <ClInclude Include="TileT.h" />
+    <ClInclude Include="TileZ.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>

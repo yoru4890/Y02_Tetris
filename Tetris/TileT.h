@@ -1,12 +1,13 @@
 #pragma once
 #include "TileBase.h"
+
 namespace DX
 {
-	class TileJ : public TileBase
+	class TileT : public TileBase
 	{
 	public:
-		TileJ();
-		virtual ~TileJ();
+		TileT();
+		virtual ~TileT();
 
 		virtual void InitTile(GameConstants::ShapeTile shapeTile) override;
 		virtual void Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board) override;

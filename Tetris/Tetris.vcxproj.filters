@@ -52,6 +52,21 @@
     <ClCompile Include="TileJ.cpp">
       <Filter>Tile</Filter>
     </ClCompile>
+    <ClCompile Include="TileL.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="TileO.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="TileS.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="TileT.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="TileZ.cpp">
+      <Filter>Tile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -94,6 +109,21 @@
       <Filter>Tile</Filter>
     </ClInclude>
     <ClInclude Include="TileJ.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileL.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileO.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileS.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileT.h">
+      <Filter>Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TileZ.h">
       <Filter>Tile</Filter>
     </ClInclude>
   </ItemGroup>

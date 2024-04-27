@@ -1,39 +1,39 @@
 #include "pch.h"
-#include "TileJ.h"
+#include "TileT.h"
 
 using namespace DX;
 using namespace GameConstants;
 
-DX::TileJ::TileJ()
+DX::TileT::TileT()
 {
 }
 
-DX::TileJ::~TileJ()
+DX::TileT::~TileT()
 {
 }
 
-void DX::TileJ::InitTile(GameConstants::ShapeTile shapeTile)
+void DX::TileT::InitTile(GameConstants::ShapeTile shapeTile)
 {
 	TileBase::InitTile(shapeTile);
 }
 
-void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+void DX::TileT::Rotate(DirectX::Keyboard::State const& kb, const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
 {
 	if (kb.Q)
 	{
 		switch (m_state)
 		{
 			case UP:
-				CCWRotate(m_board);
+				CCWRotate(m_board, 1, 0);
 				break;
 			case RIGHT:
-				CCWRotate(m_board, -1);
+				CCWRotate(m_board, 0, 1);
 				break;
 			case DOWN:
-				CCWRotate(m_board);
+				CCWRotate(m_board, -1, 0);
 				break;
 			case LEFT:
-				CCWRotate(m_board, 1);
+				CCWRotate(m_board, 0, -1);
 				break;
 			case SIZE:
 				break;
@@ -51,16 +51,16 @@ void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 		switch (m_state)
 		{
 			case UP:
-				CWRotate(m_board);
+				CWRotate(m_board, 0, -1);
 				break;
 			case RIGHT:
-				CWRotate(m_board, 1);
+				CWRotate(m_board, 1, 0);
 				break;
 			case DOWN:
-				CWRotate(m_board);
+				CWRotate(m_board, 0, 1);
 				break;
 			case LEFT:
-				CWRotate(m_board, -1);
+				CWRotate(m_board, -1, 0);
 				break;
 			case SIZE:
 				break;
@@ -74,7 +74,7 @@ void DX::TileJ::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 	}
 }
 
-void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
+void DX::TileT::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
 {
 	if (!m_isCCWRotate)
 	{
@@ -84,14 +84,14 @@ void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstan
 			m_nextTilePos[i].second = (m_tilePos[i].first - basePos.first - ROTATION_OFFSET) * -1 + basePos.second + ROTATION_OFFSET;
 		}
 
-		for (int i{}; i < 2; i++)
+		for (int i{ -1 }; i < 1; i++)
 		{
 			bool isCanRotate{ true };
 
 			for (const auto& e : m_nextTilePos)
 			{
 				int nextX = e.first + i * xDir;
-				int nextY = e.second;
+				int nextY = e.second + i * yDir;
 
 				if (nextX < 0 || nextX >= BOARD_COL || nextY < 0 || nextY >= BOARD_ROW) continue;
 
@@ -107,7 +107,7 @@ void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstan
 				for (int j{}; j < m_tilePos.size(); j++)
 				{
 					m_tilePos[j].first = m_nextTilePos[j].first + i * xDir;
-					m_tilePos[j].second = m_nextTilePos[j].second;
+					m_tilePos[j].second = m_nextTilePos[j].second + i * yDir;
 				}
 
 				m_isCCWRotate = true;
@@ -125,7 +125,7 @@ void DX::TileJ::CCWRotate(const std::array<GameConstants::ShapeTile, GameConstan
 	}
 }
 
-void DX::TileJ::CWRotate(const const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
+void DX::TileT::CWRotate(const const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir, int yDir)
 {
 	if (!m_isCWRotate)
 	{
@@ -135,7 +135,7 @@ void DX::TileJ::CWRotate(const const std::array<GameConstants::ShapeTile, GameCo
 			m_nextTilePos[i].second = (m_tilePos[i].first - basePos.first - ROTATION_OFFSET) + basePos.second + ROTATION_OFFSET;
 		}
 
-		for (int i{}; i < 2; i++)
+		for (int i{ -1 }; i < 1; i++)
 		{
 			bool isCanRotate{ true };
 
@@ -143,7 +143,7 @@ void DX::TileJ::CWRotate(const const std::array<GameConstants::ShapeTile, GameCo
 			for (const auto& e : m_nextTilePos)
 			{
 				int nextX = e.first + i * xDir;
-				int nextY = e.second;
+				int nextY = e.second + i * yDir;
 
 				if (nextX < 0 || nextX >= BOARD_COL || nextY < 0 || nextY >= BOARD_ROW) continue;
 
@@ -159,7 +159,7 @@ void DX::TileJ::CWRotate(const const std::array<GameConstants::ShapeTile, GameCo
 				for (int j{}; j < m_tilePos.size(); j++)
 				{
 					m_tilePos[j].first = m_nextTilePos[j].first + i * xDir;
-					m_tilePos[j].second = m_nextTilePos[j].second;
+					m_tilePos[j].second = m_nextTilePos[j].second + i * yDir;
 				}
 
 				m_isCWRotate = true;
