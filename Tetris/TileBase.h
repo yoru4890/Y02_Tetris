@@ -15,7 +15,7 @@ namespace DX
 		virtual void CWRotate(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board, int xDir = 0, int yDir = 0) {}
 
 		void Move(
-			DX::StepTimer const& timer,
+			const double& elapsedSeconds,
 			DirectX::Keyboard::State const& kb,
 			double& accumulatedTime,
 			double& keyPressedTime,
@@ -31,6 +31,7 @@ namespace DX
 
 		bool IsStuck() { return m_isStuck; }
 		bool IsStuckBySpaceBar() { return m_isStuckBySpaceBar; };
+		bool IsDie(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board);
 
 	protected:
 

@@ -4,8 +4,6 @@ using namespace DirectX;
 
 namespace
 {
-	
-
 	class MyGame final : public Game
 	{
 	public:
@@ -30,8 +28,6 @@ namespace
 	};
 
 	std::unique_ptr<Game> g_game;
-
-	
 }
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

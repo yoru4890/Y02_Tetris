@@ -46,7 +46,7 @@ void DX::TileZ::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 		m_isCCWRotate = false;
 	}
 
-	if (kb.E)
+	if (kb.E || kb.Up)
 	{
 		switch (m_state)
 		{

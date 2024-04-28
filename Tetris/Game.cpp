@@ -10,8 +10,6 @@ using namespace GameConstants;
 using Microsoft::WRL::ComPtr;
 
 Game::Game() noexcept(false) : 
-	m_board(), m_tiles(), m_oneTiles(), m_ghostTiles(), m_tile(nullptr), m_ghost(nullptr), m_background(nullptr),
-	m_accumulatedTime(), m_keyPressedTime(), m_isPressedSpaceBar(false),
 	PIVOT_POS
 	{ {
 		{},
@@ -23,7 +21,10 @@ Game::Game() noexcept(false) :
 		{ 2, 1 },	// S_SHAPE
 		{ 2, 1 },	// T_SHAPE
 		{ 1, 1 }	// Z_SHAPE
-	} }
+	} },
+	m_board(), m_tiles(), m_oneTiles(), m_ghostTiles(), m_nextTiles(), m_randomNums(), m_tile(nullptr), m_ghost(nullptr), m_background(nullptr),
+	m_nextBoard(nullptr), m_scoreBoard(nullptr), m_title(nullptr),m_accumulatedTime(), m_keyPressedTime(), m_timeSpeed(1.0f), m_isPressedSpaceBar(false), 
+	m_lineClearCount(), m_totalLine(), m_level(), m_nextTileIndex() , m_gameState()
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -56,13 +57,28 @@ void Game::Initialize(HWND window, int width, int height)
 	StageInitialize();
 }
 
+void Game::OpenTitle()
+{
+	m_gameState = GameState::TITLE;
+}
+
 void Game::StageInitialize()
 {
-	m_background = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND),
-		L"Assets/Board.png"
-	);
+	m_background = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND),L"Assets/Board.png");
 	m_background->SetPivot(0.0f, 0.0f);
 	m_background->SetPosition(0.0f, 0.0f);
+
+	m_nextBoard = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND), L"Assets/Next_Board.png");
+	m_nextBoard->SetPivot(0.0f, 0.0f);
+	m_nextBoard->SetPosition(m_background->GetPosition().x + 400.0f, m_background->GetPosition().y + 0.0f);
+
+	m_scoreBoard = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND), L"Assets/Score_Board.png");
+	m_scoreBoard->SetPivot(0.0f, 0.0f);
+	m_scoreBoard->SetPosition(m_background->GetPosition().x + 400.0f, m_background->GetPosition().y + 416.0f);
+
+	m_title = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND), L"Assets/Title.png");
+	auto size = m_deviceResources->GetOutputSize();
+	m_title->SetPosition(size.right / 2.0f, size.bottom / 2.0f - 100.0f);
 
 	for (int i{}, j{ GameConstants::BOARD_COL * (GameConstants::BOARD_ROW - 1) }; i < GameConstants::BOARD_COL; i++, j++)
 	{
@@ -93,17 +109,25 @@ void Game::StageInitialize()
 	{
 		m_oneTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BOARD), oneTiles[i].c_str());
 		m_ghostTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::GHOST), ghostTiles[i].c_str());
+		m_nextTiles[i] = ActorManager::Instance().Create<Actor>(static_cast<int>(GameConstants::Layer::BACKGROUND), tiles[i].c_str());
+
 		m_ghostTiles[i]->SetPivot(PIVOT_POS[i].first * TILE_SIZE, PIVOT_POS[i].second * TILE_SIZE);
 		m_ghostTiles[i]->SetPosition(-100.0f, -100.0f);
 	}
+
+	m_nextTiles[2]->SetRotation(PI / 2.0f);
 
 	for (int i{ static_cast<int>(ShapeTile::I_SHAPE) }; i < static_cast<int>(ShapeTile::SIZE); i++)
 	{
 		m_tiles[i]->SetPivot(PIVOT_POS[i].first * TILE_SIZE, PIVOT_POS[i].second * TILE_SIZE);
 	}
 
-	SpawnTile();
+	for (auto& num : m_randomNums)
+	{
+		num = GenerateRandomNumber(static_cast<int>(ShapeTile::I_SHAPE), static_cast<int>(ShapeTile::Z_SHAPE));
+	}
 
+	OpenTitle();
 }
 
 void Game::LineClearCheck()
@@ -115,7 +139,7 @@ void Game::LineClearCheck()
 		{
 			for (int j{ 1 }; j < BOARD_COL - 1; j++)
 			{
-				if (m_board[i * BOARD_COL + j] == ShapeTile::BLANK || m_board[i * BOARD_COL + 1] != m_board[i * BOARD_COL + j])
+				if (m_board[i * BOARD_COL + j] == ShapeTile::BLANK)
 				{
 					isLineClear = false;
 					break;
@@ -124,6 +148,14 @@ void Game::LineClearCheck()
 
 			if (isLineClear)
 			{
+				m_lineClearCount++;
+				m_totalLine++;
+				if (m_lineClearCount == 10)
+				{
+					m_lineClearCount = 0;
+					m_level++;
+					m_timeSpeed += 1.0f;
+				}
 				for (int j{ i }; j > 1; j--)
 				{
 					for (int k{ 1 }; k < BOARD_COL - 1; k++)
@@ -151,18 +183,25 @@ void Game::SpawnTile()
 {
 	m_keyPressedTime = 0.0;
 
-	int randomNum{ GenerateRandomNumber(static_cast<int>(ShapeTile::I_SHAPE),static_cast<int>(ShapeTile::Z_SHAPE)) };
-
-	m_tile = m_tiles[randomNum];
-	m_ghost = m_ghostTiles[randomNum];
+	m_tile = m_tiles[m_randomNums[m_nextTileIndex]];
+	m_ghost = m_ghostTiles[m_randomNums[m_nextTileIndex]];
 	m_tile->SetPosition(TILE_SIZE * START_X, TILE_SIZE * START_Y);
-	m_tile->InitTile(static_cast<ShapeTile>(randomNum));
+	m_tile->InitTile(static_cast<ShapeTile>(m_randomNums[m_nextTileIndex]));
+
+	m_randomNums[m_nextTileIndex] = GenerateRandomNumber(static_cast<int>(ShapeTile::I_SHAPE), static_cast<int>(ShapeTile::Z_SHAPE));
+	m_nextTileIndex = (m_nextTileIndex + 1) % m_randomNums.size();
+
+	if (m_tile->IsDie(m_board))
+	{
+		PlayStage();
+	}
 }
 
-void Game::DrawBoard()
+void Game::DrawStage()
 {
-
 	m_background->Draw(m_spriteBatch.get());
+	m_nextBoard->Draw(m_spriteBatch.get());
+	m_scoreBoard->Draw(m_spriteBatch.get());
 	m_tile->Draw(m_spriteBatch.get());
 
 	for (int i{}; i<BOARD_SIZE; i++)
@@ -175,7 +214,58 @@ void Game::DrawBoard()
 	}
 
 	m_ghost->Draw(m_spriteBatch.get());
-	//ActorManager().Instance().Draw(m_spriteBatch.get());
+
+	float nextX{528.0f}, nextY{120.0f};
+	for (int i{}; i < 3; i++)
+	{
+		int num = (m_nextTileIndex + i) % m_randomNums.size();
+		m_nextTiles[m_randomNums[num]]->SetPosition(nextX, nextY);
+		m_nextTiles[m_randomNums[num]]->Draw(m_spriteBatch.get());
+		nextY += 96.0f;
+	}
+
+	std::wstring levelNum{ std::to_wstring(m_level) };
+	std::wstring linesNum{ std::to_wstring(m_totalLine) };
+
+	DrawFont(L"NEXT", m_font->MeasureString(L"NEXT") / 2.f, { 528.0f,32.0f });
+	DrawFont(L"LEVEL", m_font->MeasureString(L"LEVEL") / 2.f, { 528.0f,450.0f });
+	DrawFont(levelNum, m_font->MeasureString(levelNum.c_str()) / 2.f, { 528.0f,510.0f });
+	DrawFont(L"LINES", m_font->MeasureString(L"LINES") / 2.f, { 528.0f,580.0f });
+	DrawFont(linesNum, m_font->MeasureString(linesNum.c_str()) / 2.f, { 528.0f,645.0f });
+}
+
+void Game::DrawTitle()
+{
+	m_title->Draw(m_spriteBatch.get());
+
+	DrawFont(L"Press spacebar to start!", m_font->MeasureString(L"Press spacebar to start!") / 2.f, { m_title->GetPosition().x, 500.0f });
+}
+
+void Game::DrawFont(const std::wstring text, Vector2 origin, XMFLOAT2 fontPos)
+{
+	m_font->DrawString(m_spriteBatch.get(), text.c_str(), fontPos + Vector2(1.f, 1.f), Colors::Black, 0.f, origin);
+	m_font->DrawString(m_spriteBatch.get(), text.c_str(), fontPos + Vector2(-1.f, 1.f), Colors::Black, 0.f, origin);
+	m_font->DrawString(m_spriteBatch.get(), text.c_str(), fontPos + Vector2(-1.f, -1.f), Colors::Black, 0.f, origin);
+	m_font->DrawString(m_spriteBatch.get(), text.c_str(), fontPos + Vector2(1.f, -1.f), Colors::Black, 0.f, origin);
+
+	m_font->DrawString(m_spriteBatch.get(), text.c_str(), fontPos, Colors::White, 0.f, origin);
+}
+
+void Game::PlayStage()
+{
+	m_gameState = GameState::STAGE;
+
+	m_lineClearCount = 0;
+
+	for (int i{ 1 }; i < BOARD_ROW - 1; i++)
+	{
+		for (int j{ 1 }; j < BOARD_COL - 1; j++)
+		{
+			m_board[i * BOARD_COL + j] = ShapeTile::BLANK;
+		}
+	}
+
+	SpawnTile();
 }
 
 int Game::GenerateRandomNumber(int min, int max)
@@ -198,42 +288,61 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {
-	if (m_tile->IsStuck())
-	{
-		m_tile->StackBoard(m_board);
-
-		LineClearCheck();
-
-		SpawnTile();
-		
-		return;
-	}
-	
 	auto kb = m_keyboard->GetState();
-	
+
 	if (kb.Escape)
 	{
 		ExitGame();
 	}
 
-	if (kb.Space)
+	switch (m_gameState)
 	{
-		if (!m_isPressedSpaceBar)
-		{
-			m_tile->SpaceBar(m_board);
-			m_isPressedSpaceBar = true;
-		}
-	}
-	else
-	{
-		m_isPressedSpaceBar = false;
+		case GameConstants::GameState::TITLE:
+			if (kb.Space)
+			{
+				PlayStage();
+				Sleep(500);
+				m_isPressedSpaceBar = true;
+			}
+			break;
+		case GameConstants::GameState::STAGE:
+			if (m_tile->IsStuck())
+			{
+				m_tile->StackBoard(m_board);
+				m_ghost->SetPosition(-100.0f, -100.0f);
+				LineClearCheck();
+
+				SpawnTile();
+
+				return;
+			}
+
+			if (kb.Space)
+			{
+				if (!m_isPressedSpaceBar)
+				{
+					m_tile->SpaceBar(m_board);
+					m_isPressedSpaceBar = true;
+				}
+			}
+			else
+			{
+				m_isPressedSpaceBar = false;
+			}
+
+			m_tile->Move(timer.GetElapsedSeconds() * m_timeSpeed, kb, m_accumulatedTime, m_keyPressedTime, m_board);
+			m_tile->Rotate(kb, m_board);
+
+			m_tile->SetGhost(m_ghost, m_board);
+			break;
+		case GameConstants::GameState::PAUSE:
+			break;
+		case GameConstants::GameState::SIZE:
+			break;
+		default:
+			break;
 	}
 
-	m_tile->Move(timer, kb, m_accumulatedTime, m_keyPressedTime, m_board);
-	m_tile->Rotate(kb, m_board);
-
-	m_tile->SetGhost(m_ghost, m_board);
-	
 	ActorManager::Instance().Update(timer.GetElapsedSeconds());
 
 }
@@ -254,7 +363,21 @@ void Game::Render()
 
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_commonStates->NonPremultiplied());
 
-	DrawBoard();
+	switch (m_gameState)
+	{
+		case GameConstants::GameState::TITLE:
+			DrawTitle();
+			break;
+		case GameConstants::GameState::STAGE:
+			DrawStage();
+			break;
+		case GameConstants::GameState::PAUSE:
+			break;
+		case GameConstants::GameState::SIZE:
+			break;
+		default:
+			break;
+	}
 	
 	m_spriteBatch->End();
 
@@ -271,7 +394,7 @@ void Game::Clear()
 	auto renderTarget = m_deviceResources->GetRenderTargetView();
 	auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-	context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+	context->ClearRenderTargetView(renderTarget, Colors::DarkSlateBlue);
 	context->ClearDepthStencilView(
 		depthStencil,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -340,6 +463,7 @@ void Game::CreateDeviceDependentResources()
 	m_commonStates = std::make_unique<CommonStates>(device);
 	m_spriteBatch = std::make_unique<SpriteBatch>(context);
 
+	m_font = std::make_unique<SpriteFont>(device, L"Assets/tetris.spritefont");
 }
 
 void Game::CreateWindowSizeDependentResources()
@@ -352,6 +476,7 @@ void Game::OnDeviceLost()
 
 	m_spriteBatch.reset();
 	m_commonStates.reset();
+	m_font.reset();
 
 	TextureManager::Instance().OnDeviceLost();
 	ActorManager::Instance().OnDeviceLost();

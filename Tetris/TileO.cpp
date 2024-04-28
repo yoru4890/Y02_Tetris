@@ -28,7 +28,7 @@ void DX::TileO::Rotate(DirectX::Keyboard::State const& kb, const std::array<Game
 		m_isCCWRotate = false;
 	}
 
-	if (kb.E)
+	if (kb.E || kb.Up)
 	{
 		CWRotate(m_board);
 	}

@@ -42,7 +42,7 @@ void DX::TileBase::InitTile(GameConstants::ShapeTile shapeTile)
  }
 
 void DX::TileBase::Move(
-	DX::StepTimer const& timer,
+	const double& elapsedSeconds,
 	DirectX::Keyboard::State const& kb,
 	double& accumulatedTime, double& keyPressedTime,
 	const std::array<GameConstants::ShapeTile,
@@ -50,7 +50,7 @@ void DX::TileBase::Move(
 {
 	if (m_isStuckBySpaceBar)
 	{
-		m_stuckTime += timer.GetElapsedSeconds();
+		m_stuckTime += elapsedSeconds;
 
 		if (m_stuckTime >= TILE_DOWN_TIME / 4)
 		{
@@ -59,7 +59,7 @@ void DX::TileBase::Move(
 		return;
 	}
 
-	accumulatedTime += timer.GetElapsedSeconds();
+	accumulatedTime += elapsedSeconds;
 
 
 	if (accumulatedTime >= TILE_DOWN_TIME)
@@ -69,10 +69,11 @@ void DX::TileBase::Move(
 		if (!MoveDown(m_board))
 		{
 			m_isStuck = true;
+			return;
 		}
 	}
 
-	if (kb.D)
+	if (kb.D || kb.Right)
 	{
 		if (!keyPressedTime)
 		{
@@ -88,9 +89,9 @@ void DX::TileBase::Move(
 			}
 		}
 
-		keyPressedTime += timer.GetElapsedSeconds();
+		keyPressedTime += elapsedSeconds;
 	}
-	else if (kb.A)
+	else if (kb.A || kb.Left)
 	{
 		if (!keyPressedTime)
 		{
@@ -106,10 +107,10 @@ void DX::TileBase::Move(
 			}
 		}
 
-		keyPressedTime += timer.GetElapsedSeconds();
+		keyPressedTime += elapsedSeconds;
 
 	}
-	else if (kb.S)
+	else if (kb.S || kb.Down)
 	{
 		if (!keyPressedTime)
 		{
@@ -125,7 +126,7 @@ void DX::TileBase::Move(
 			}
 		}
 
-		keyPressedTime += timer.GetElapsedSeconds();
+		keyPressedTime += elapsedSeconds;
 	}
 	else
 	{
@@ -298,4 +299,16 @@ void DX::TileBase::StackBoard(std::array<GameConstants::ShapeTile, GameConstants
 	{
 		m_board[e.second * GameConstants::BOARD_COL + e.first] = m_shape;
 	}
+}
+
+bool DX::TileBase::IsDie(const std::array<GameConstants::ShapeTile, GameConstants::BOARD_SIZE>& m_board)
+{
+	for (const auto& tile : m_tilePos)
+	{
+		if (m_board[tile.second * BOARD_COL + tile.first] != ShapeTile::BLANK)
+		{
+			return true;
+		}
+	}
+	return false;
 }
